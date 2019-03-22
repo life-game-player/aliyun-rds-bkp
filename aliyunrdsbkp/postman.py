@@ -89,10 +89,10 @@ class Postman:
         <th style="border: 1px solid black;padding:10px 20px 10px 20px">\
         下载链接</th> \
         </tr>'
-        for f in succeeded:
-            html_text += self.get_db_file_info_html(f, True)
         for f in failed:
             html_text += self.get_db_file_info_html(f, False)
+        for f in succeeded:
+            html_text += self.get_db_file_info_html(f, True)
         if succeeded_cnt == 0 and failed_cnt == 0:
             html_text += '<tr><td colspan="7" align="center" \
             style="border-left:1px solid black;border-right:1px solid black; \
