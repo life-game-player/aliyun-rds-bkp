@@ -42,9 +42,11 @@ class MySQLBackup:
                     self.succeeded_files.append(f)
                 else:
                     self.failed_files.append(f)
-            self.config.set_last_bkp_time(
-                instance, backup_type,
-                last_bkp_time)
+                self.config.set_last_bkp_time(
+                    instance, backup_type,
+                    last_bkp_time)
+                # Update last backup time in config file
+                self.config.update_config_file()
 
     def backup(self):
         for region in self.config.get_regions():
@@ -78,8 +80,6 @@ class MySQLBackup:
                     self.config.get_retention_days(instance)
                 )
 
-        # Update last backup time in config file
-        self.config.update_config_file()
         # Send backup report email
         self.postman.send_backup_report(
             self.succeeded_files,

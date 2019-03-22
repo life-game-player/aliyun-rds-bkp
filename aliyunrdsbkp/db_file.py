@@ -40,9 +40,14 @@ class DBFile:
         return self.download_url
 
     def download(self, dest_file):
-        with urllib.request.urlopen(self.download_url) as response, \
-                open(dest_file, 'wb') as f:
-            shutil.copyfileobj(response, f)
+        try:
+            with urllib.request.urlopen(self.download_url) as response, \
+                    open(dest_file, 'wb') as f:
+                shutil.copyfileobj(response, f)
+        except Exception as e:
+            return 1
+        else:
+            return 0
 
     def validate_file(self, dest_file):
         # Compare file size
@@ -66,7 +71,8 @@ class DBFile:
             if not os.path.exists(dest_dir):
                 os.makedirs(dest_dir)  # Create derectory if not existing
             dest_file = os.path.join(dest_dir, self.file_name)
-            self.download(dest_file)
+            if self.download(dest_file):  # Download failed
+                return 2
             if self.validate_file(dest_file):
                 return 0
             else:
