@@ -70,7 +70,7 @@ pip install aliyun-rds-bkp
 - DBInstanceId: RDS实例ID
 - BackupEndTime: 上次备份的结束的UTC时间，用于增量，格式为YYYY-MM-DD HH:MI:SS
 - BackupRetentionDays: 备份保留天数
-- Plan: 备份计划。5个参数以空格分隔，分别代表触发备份的
+- Plan: 备份计划(***本地时间***)。5个参数以空格分隔，分别代表触发备份的
   - 分钟
   - 小时
   - 一个月中的第几天
