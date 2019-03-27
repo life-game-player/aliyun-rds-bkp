@@ -39,15 +39,18 @@ class DBFile:
     def get_download_url(self):
         return self.download_url
 
-    def download(self, dest_file):
-        try:
-            with urllib.request.urlopen(self.download_url) as response, \
-                    open(dest_file, 'wb') as f:
-                shutil.copyfileobj(response, f)
-        except Exception as e:
-            return 1
+    def download(self, dest_file, retry=3):
+        for i in range(retry):
+            try:
+                with urllib.request.urlopen(self.download_url) as response, \
+                        open(dest_file, 'wb') as f:
+                    shutil.copyfileobj(response, f)
+            except Exception as e:
+                pass
+            else:
+                return 0
         else:
-            return 0
+            return 1
 
     def validate_file(self, dest_file):
         # Compare file size
