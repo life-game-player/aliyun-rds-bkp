@@ -1,11 +1,11 @@
 import setuptools
 
-with open("README.md", "r") as fh:
+with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
 setuptools.setup(
     name="aliyun-rds-bkp",
-    version="0.1.3",
+    version="0.1.4",
     author="Bill Guo",
     author_email="billguo.feather@outlook.com",
     description="A small tool to download db files \
