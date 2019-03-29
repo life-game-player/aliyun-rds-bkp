@@ -36,7 +36,7 @@ class RDSInstance:
         if end_time:
             request.set_EndTime(end_time.strftime("%Y-%m-%dT00:00Z"))
         else:
-            request.set_EndTime(datetime.now().strftime("%Y-%m-%dT00:00Z"))
+            request.set_EndTime(datetime.utcnow().strftime("%Y-%m-%dT00:00Z"))
         request.set_DBInstanceId(self.instance_id)
         request.set_PageSize(100)
         read_record_cnt = 0
@@ -79,7 +79,9 @@ class RDSInstance:
         if end_time:
             request.set_EndTime(end_time.strftime("%Y-%m-%dT%H:%M:%SZ"))
         else:
-            request.set_EndTime(datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ"))
+            request.set_EndTime(
+                datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
+            )
         request.set_DBInstanceId(self.instance_id)
         request.set_PageSize(100)
         read_record_cnt = 0
