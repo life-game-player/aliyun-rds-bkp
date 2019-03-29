@@ -37,9 +37,12 @@ class RDSInstance:
         start_time += timedelta(days=1)
         request.set_StartTime(start_time.strftime("%Y-%m-%dT00:00Z"))
         if end_time:
-            request.set_EndTime(end_time.strftime("%Y-%m-%dT00:00Z"))
+            search_end_time = end_time
         else:
-            request.set_EndTime(datetime.utcnow().strftime("%Y-%m-%dT00:00Z"))
+            search_end_time = datetime.utcnow()
+        # Add 1 day to end time because it is exclusive in SDK
+        search_end_time += timedelta(days=1)
+        request.set_EndTime(search_end_time.strftime("%Y-%m-%dT00:00Z"))
         request.set_DBInstanceId(self.instance_id)
         request.set_PageSize(100)
         read_record_cnt = 0
