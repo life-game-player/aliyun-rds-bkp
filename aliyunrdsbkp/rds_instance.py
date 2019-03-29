@@ -29,9 +29,12 @@ class RDSInstance:
     def get_fullbackup_files(self, start_time, end_time=None, top=0):
         files = list()
         request = DescribeBackupsRequest.DescribeBackupsRequest()
-        # The start time of current file will subtly earlier
-        # than the end time of last file. Set start_time smaller than it is.
-        start_time -= timedelta(minutes=1)
+        # Aliyun SDK works on this way: [Backup End Time]
+        # BETWEEN [search start time] AND [search end time].
+        # And full backup is taken once at most per day.
+        # So it is safe to add 1 day on last backup end time as
+        # current start time to avoid reundant downloading.
+        start_time += timedelta(days=1)
         request.set_StartTime(start_time.strftime("%Y-%m-%dT00:00Z"))
         if end_time:
             request.set_EndTime(end_time.strftime("%Y-%m-%dT00:00Z"))
@@ -71,9 +74,11 @@ class RDSInstance:
         files = list()
         if self.host_id == 0:  # Set host id if not set before
             self.host_id = self.get_host_id()
-        # The start time of current file will subtly earlier
-        # then the end date of last file. Set start_time smaller than it is.
-        start_time -= timedelta(minutes=1)
+        # Aliyun SDK works on this way: [Backup End Time]
+        # BETWEEN [search start time] AND [search end time].
+        # So it is safe to add 1 sec on last backup end time as
+        # current start time to avoid reundant downloading.
+        start_time += timedelta(seconds=1)
         request = DescribeBinlogFilesRequest.DescribeBinlogFilesRequest()
         request.set_StartTime(start_time.strftime("%Y-%m-%dT%H:%M:%SZ"))
         if end_time:
