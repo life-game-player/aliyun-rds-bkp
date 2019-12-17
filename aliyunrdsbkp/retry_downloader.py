@@ -23,9 +23,9 @@ class RetryDownloader:
             if not file.backup(self.backup_dir):
                 # Remove pickle file if succeeded
                 os.remove(file_path)
-                self.succeeded_files.append(f)
+                self.succeeded_files.append(file)
             else:
-                self.failed_files.append(f)
+                self.failed_files.append(file)
 
         # Send backup report email
         self.postman.send_backup_report(

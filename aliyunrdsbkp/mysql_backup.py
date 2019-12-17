@@ -1,6 +1,5 @@
 import os
 import sys
-import pickle
 
 from aliyunsdkcore.client import AcsClient
 
@@ -82,18 +81,11 @@ class MySQLBackup:
                 )
 
         # Record failed files
-        failed_dir = os.path.join(
-            backup_dir, 'failed_downloads'
-        )
+        failed_dir = self.config.get_failed_dir()
         if not os.path.exists(failed_dir):
             os.makedirs(failed_dir)  # Create derectory if not existing
         for ff in self.failed_files:
-            failed_file_path = os.path.join(
-                failed_dir, ff.file_name
-            )
-            if not os.path.exists(failed_file_path):
-                with open(failed_file_path, 'wb') as fp:
-                    pickle.dump(ff, fp, pickle.HIGHEST_PROTOCOL)
+            ff.dump(failed_dir)
 
         # Send backup report email
         self.postman.send_backup_report(

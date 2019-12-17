@@ -1,5 +1,6 @@
 import os
 import time
+import pickle
 import urllib.request
 from urllib.parse import urlparse
 import shutil
@@ -89,3 +90,11 @@ class DBFile:
                 # Downloaded file is invalid
                 os.remove(dest_file)
                 return 2
+
+    def dump(self, failed_dir):
+        failed_file_path = os.path.join(
+            failed_dir, self.file_name
+        )
+        if not os.path.exists(failed_file_path):
+            with open(failed_file_path, 'wb') as fp:
+                pickle.dump(self, fp, pickle.HIGHEST_PROTOCOL)
