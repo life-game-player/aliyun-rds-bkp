@@ -42,6 +42,7 @@ pip install aliyun-rds-bkp
         }
     ],
     "BackupHome": "Path/to/Backup/Directory",
+    "FailedDownloads": "Path/to/Failed Downloads/Directory",
     "ErrorLog": "Path/to/Error/Log",
     "MailConfig": {
         "SMTPServer": "Your SMTP Server",
@@ -97,6 +98,9 @@ import os
 
 from aliyunrdsbkp.mysql_backup import MySQLBackup
 
+"""
+日常备份
+"""
 if __name__ == '__main__':
     dir_path = os.path.dirname(os.path.realpath(__file__))
     config_file = os.path.join(
@@ -106,6 +110,24 @@ if __name__ == '__main__':
     mysql_backup = MySQLBackup(config_file)
     mysql_backup.backup()
 
+```
+
+```python
+import os
+
+from aliyunrdsbkp.retry_downloader import RetryDownloader
+
+"""
+下载重试
+"""
+if __name__ == '__main__':
+    dir_path = os.path.dirname(os.path.realpath(__file__))
+    config_file = os.path.join(
+        dir_path,
+        'config/settings.json'
+    )  # 配置文件路径
+    retry_downloader = RetryDownloader(config_file)
+    retry_downloader.run()
 ```
 
 2. 在Linux下的crontab或Windows下的Task Scheduler配置定时执行以上调用脚本

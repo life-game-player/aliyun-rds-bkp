@@ -26,6 +26,9 @@ class Config:
     def get_backup_dir(self):
         return self.conf['BackupHome']
 
+    def get_failed_dir(self):
+        return self.conf['FailedDownloads']
+
     def get_mail_config(self):
         return self.conf['MailConfig']
 

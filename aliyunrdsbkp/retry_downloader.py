@@ -6,9 +6,10 @@ from aliyunrdsbkp.config import Config
 
 
 class RetryDownloader:
-    def __init__(self, failed_dir, backup_dir):
-        self.failed_dir = failed_dir
-        self.backup_dir = backup_dir
+    def __init__(self, config_file):
+        self.config = Config(config_file)
+        self.failed_dir = self.config.get_failed_dir()
+        self.backup_dir = self.config.get_backup_dir()
         self.succeeded_files = list()
         self.failed_files = list()
         self.postman = Postman(self.config.get_mail_config())
