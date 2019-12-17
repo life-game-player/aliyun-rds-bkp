@@ -1,15 +1,19 @@
 import os
+import time
 import urllib.request
 from urllib.parse import urlparse
 import shutil
 
 
 class DBFile:
-    def __init__(self, download_url, host_id, start_time, end_time,
-                 file_type, file_status=0, file_size=0, checksum=0):
+    def __init__(self, download_url, host_id,
+            region_id, instance_id, start_time, end_time,
+            file_type, file_status=0, file_size=0, checksum=0):
         self.file_type = file_type
         self.download_url = download_url
         self.host_id = host_id
+        self.region_id = region_id
+        self.instance_id = instance_id
         self.file_status = file_status
         self.file_size = file_size
         self.checksum = checksum
@@ -45,8 +49,9 @@ class DBFile:
                 with urllib.request.urlopen(self.download_url) as response, \
                         open(dest_file, 'wb') as f:
                     shutil.copyfileobj(response, f)
-            except Exception as e:
-                pass
+            except Exception:
+                if i < retry - 1:
+                    time.sleep(20)  # Retry after some seconds
             else:
                 return 0
         else:
@@ -68,6 +73,8 @@ class DBFile:
             return 1  # Fail the backup if file status is abnormal
         else:
             dest_dir = os.path.join(backup_dir,
+                                    self.region_id,
+                                    self.instance_id,
                                     str(self.end_time.year),
                                     str(self.end_time.month),
                                     str(self.end_time.day))

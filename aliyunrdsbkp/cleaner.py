@@ -4,10 +4,13 @@ import shutil
 
 
 class Cleaner:
-    def clean_folder(self, dir, retention_days):
+    def clean_folder(self, dir, region_id, instance_id, retention_days):
         expire_date = datetime.utcnow() - timedelta(days=retention_days)
-        for d_year in os.listdir(dir):
-            d_year_path = os.path.join(dir, d_year)
+        backup_dir = os.path.join(
+            dir, region_id, instance_id
+        )
+        for d_year in os.listdir(backup_dir):
+            d_year_path = os.path.join(backup_dir, d_year)
             if int(d_year) < expire_date.year:
                 shutil.rmtree(d_year_path)
             elif int(d_year) == expire_date.year:

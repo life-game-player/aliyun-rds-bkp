@@ -1,5 +1,6 @@
 import os
 import sys
+import pickle
 
 from aliyunsdkcore.client import AcsClient
 
@@ -49,6 +50,8 @@ class MySQLBackup:
                 self.config.update_config_file()
 
     def backup(self):
+        backup_dir = self.config.get_backup_dir()
+
         for region in self.config.get_regions():
             client = AcsClient(
                 self.config.get_accesskey_id(),
@@ -58,10 +61,6 @@ class MySQLBackup:
             for instance in self.config.get_instances_by_region(region):
                 rds_instance = RDSInstance(
                     client,
-                    self.config.get_instance_id(instance)
-                )
-                backup_dir = os.path.join(
-                    self.config.get_backup_dir(),
                     self.config.get_region_id(region),
                     self.config.get_instance_id(instance)
                 )
@@ -77,8 +76,24 @@ class MySQLBackup:
                 # Clean up expired db files
                 self.cleaner.clean_folder(
                     backup_dir,
+                    self.config.get_region_id(region),
+                    self.config.get_instance_id(instance),
                     self.config.get_retention_days(instance)
                 )
+
+        # Record failed files
+        failed_dir = os.path.join(
+            backup_dir, 'failed_downloads'
+        )
+        if not os.path.exists(failed_dir):
+            os.makedirs(failed_dir)  # Create derectory if not existing
+        for ff in self.failed_files:
+            failed_file_path = os.path.join(
+                failed_dir, ff.file_name
+            )
+            if not os.path.exists(failed_file_path):
+                with open(failed_file_path, 'wb') as fp:
+                    pickle.dump(ff, fp, pickle.HIGHEST_PROTOCOL)
 
         # Send backup report email
         self.postman.send_backup_report(

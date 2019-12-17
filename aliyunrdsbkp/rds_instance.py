@@ -8,8 +8,9 @@ from aliyunrdsbkp.db_file import DBFile
 
 
 class RDSInstance:
-    def __init__(self, client, instance_id):
+    def __init__(self, client, region_id, instance_id):
         self.client = client
+        self.region_id = region_id
         self.instance_id = instance_id
         self.host_id = 0
 
@@ -62,6 +63,7 @@ class RDSInstance:
                 file_end_time = datetime.strptime(bkp["BackupEndTime"],
                                                   "%Y-%m-%dT%H:%M:%SZ")
                 files.append(DBFile(download_url, self.host_id,
+                                    self.region_id, self.instance_id,
                                     file_start_time, file_end_time,
                                     file_type='full',
                                     file_status=file_status,
@@ -110,6 +112,7 @@ class RDSInstance:
                         binlog['LogEndTime'],
                         "%Y-%m-%dT%H:%M:%SZ")
                     files.append(DBFile(download_url, self.host_id,
+                                        self.region_id, self.instance_id,
                                         file_start_time, file_end_time,
                                         file_type='binlog',
                                         file_size=file_size,
