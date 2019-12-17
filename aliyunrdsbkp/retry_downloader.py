@@ -28,6 +28,10 @@ class RetryDownloader:
                 self.failed_files.append(file)
 
         # Send backup report email
-        self.postman.send_backup_report(
-            self.succeeded_files,
-            self.failed_files)
+        if (
+            len(self.succeeded_files) > 0 or
+            len(self.failed_files) > 0
+        ):
+            self.postman.send_backup_report(
+                self.succeeded_files,
+                self.failed_files)
