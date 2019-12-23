@@ -50,7 +50,10 @@ class DBFile:
                 with urllib.request.urlopen(self.download_url) as response, \
                         open(dest_file, 'wb') as f:
                     shutil.copyfileobj(response, f)
-            except Exception:
+            except urllib.error.HTTPError as e:
+                print(e.code)
+            except Exception as e:
+                print(e)
                 if i < retry - 1:
                     time.sleep(20)  # Retry after some seconds
             else:
@@ -83,6 +86,8 @@ class DBFile:
                 os.makedirs(dest_dir)  # Create derectory if not existing
             dest_file = os.path.join(dest_dir, self.file_name)
             if self.download(dest_file):  # Download failed
+                if os.path.exists(dest_file):  # Clear semi-finished file if any
+                    os.remove(dest_file)
                 return 2
             if self.validate_file(dest_file):
                 return 0
