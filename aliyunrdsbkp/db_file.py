@@ -60,13 +60,12 @@ class DBFile:
                         open(dest_file, 'wb') as f:
                     shutil.copyfileobj(response, f)
             except urllib.error.HTTPError as e:
+                rest -= 1
                 if e.code == 403:
-                    rest -= 1
                     if self.reset_download_url() == 0:
                         self.download(dest_file, rest)
                 else:
                     print(e)
-                    rest -= 1
                     time.sleep(20)  # Retry after some seconds
             except Exception as e:
                 print(e)
