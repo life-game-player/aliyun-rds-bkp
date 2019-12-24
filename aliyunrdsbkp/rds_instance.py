@@ -15,6 +15,7 @@ class RDSInstance:
         self.host_id = 0
 
     def get_host_id(self):
+        print("Trying to get host id by the most recent full backup...")
         start_time = datetime(2001, 1, 1)
         recent_bkp = self.get_fullbackup_files(start_time, top=1)[0]
         return recent_bkp.get_host_id()
@@ -67,7 +68,7 @@ class RDSInstance:
                 print(
                     "Region ID:{}, Instance ID:{}, File Type:{},\n"
                     "File Status:{}, Start Time:{}, End Time:{},\n"
-                    "Download Link:{}, File Size:{}".format(
+                    "Download Link:{}, File Size:{}\n".format(
                         self.region_id,
                         self.instance_id,
                         'full',
@@ -86,8 +87,10 @@ class RDSInstance:
                                     file_size=file_size))
             read_record_cnt += response["PageRecordCount"]
             page_num += 1
-            if ((top > 0 and read_record_cnt >= top) or
-                    read_record_cnt >= response["TotalRecordCount"]):
+            if (
+                (top > 0 and read_record_cnt >= top) or
+                read_record_cnt >= response["TotalRecordCount"]
+            ):
                 break
         return files
 
@@ -130,7 +133,7 @@ class RDSInstance:
                     print(
                         "Region ID:{}, Instance ID:{}, File Type:{},\n"
                         "Start Time:{}, End Time:{},\n"
-                        "Download Link:{}, File Size:{}".format(
+                        "Download Link:{}, File Size:{}\n".format(
                             self.region_id,
                             self.instance_id,
                             'binlog',

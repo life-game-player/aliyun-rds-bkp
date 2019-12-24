@@ -64,6 +64,10 @@ class DBFile:
                     rest -= 1
                     if self.reset_download_url() == 0:
                         self.download(dest_file, rest)
+                else:
+                    print(e)
+                    rest -= 1
+                    time.sleep(20)  # Retry after some seconds
             except Exception as e:
                 print(e)
                 rest -= 1
@@ -73,18 +77,29 @@ class DBFile:
         return 1
 
     def reset_download_url(self):
+        print("Trying to refresh download url...")
         if self.rds_instance is None:
+            print("RDS instance was not found")
             return 1  # RDS instance was not found
+        start_time = self.start_time
+        end_time = self.start_time
+        if self.file_type == "binlog":
+            start_time -= timedelta(seconds=2)
+            end_time += timedelta(seconds=1)
+        if self.file_type == "full":
+            start_time -= timedelta(days=1)
+            end_time += timedelta(days=1)
         backup_files = self.rds_instance.get_backup_files(
             self.file_type,
-            self.start_time - timedelta(seconds=1),
-            self.start_time + timedelta(seconds=1)
+            start_time,
+            end_time
         )
         if not backup_files:
             print("No backup file was found")
             return 2  # Get none backup file
         for backup_file in backup_files:
             if (
+                backup_file.file_type == self.file_type and
                 backup_file.start_time == self.start_time and
                 backup_file.end_time == self.end_time
             ):
