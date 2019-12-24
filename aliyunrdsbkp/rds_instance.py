@@ -21,8 +21,10 @@ class RDSInstance:
 
     def get_backup_files(self, backup_type, start_time, end_time=None):
         if backup_type == 'full':
+            print("get_fullbackup_files('{}', '{}')".format(start_time, end_time))
             return self.get_fullbackup_files(start_time, end_time)
         elif backup_type == 'binlog':
+            print("get_binlog_files('{}', '{}')".format(start_time, end_time))
             return self.get_binlog_files(start_time, end_time)
         else:
             return None
@@ -62,6 +64,20 @@ class RDSInstance:
                                                     "%Y-%m-%dT%H:%M:%SZ")
                 file_end_time = datetime.strptime(bkp["BackupEndTime"],
                                                   "%Y-%m-%dT%H:%M:%SZ")
+                print(
+                    "Region ID:{}, Instance ID:{}, File Type:{},\n"
+                    "File Status:{}, Start Time:{}, End Time:{},\n"
+                    "Download Link:{}, File Size:{}".format(
+                        self.region_id,
+                        self.instance_id,
+                        'full',
+                        file_status,
+                        file_start_time,
+                        file_end_time,
+                        download_url,
+                        file_size
+                    )
+                )
                 files.append(DBFile(download_url, self.host_id,
                                     self.region_id, self.instance_id,
                                     file_start_time, file_end_time,
@@ -111,6 +127,19 @@ class RDSInstance:
                     file_end_time = datetime.strptime(
                         binlog['LogEndTime'],
                         "%Y-%m-%dT%H:%M:%SZ")
+                    print(
+                        "Region ID:{}, Instance ID:{}, File Type:{},\n"
+                        "Start Time:{}, End Time:{},\n"
+                        "Download Link:{}, File Size:{}".format(
+                            self.region_id,
+                            self.instance_id,
+                            'binlog',
+                            file_start_time,
+                            file_end_time,
+                            download_url,
+                            file_size
+                        )
+                    )
                     files.append(DBFile(download_url, self.host_id,
                                         self.region_id, self.instance_id,
                                         file_start_time, file_end_time,
@@ -118,6 +147,8 @@ class RDSInstance:
                                         file_size=file_size,
                                         checksum=checksum))
             read_record_cnt += response["PageRecordCount"]
+            print("{} records has been read".format(response["PageRecordCount"]))
+            print("Total records:{}".format(response['TotalRecordCount']))
             page_num += 1
             if read_record_cnt >= response['TotalRecordCount']:
                 break

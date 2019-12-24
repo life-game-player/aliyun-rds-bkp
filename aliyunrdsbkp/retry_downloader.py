@@ -1,6 +1,9 @@
 import os
 import pickle
 
+from aliyunsdkcore.client import AcsClient
+
+from aliyunrdsbkp.rds_instance import RDSInstance
 from aliyunrdsbkp.postman import Postman
 from aliyunrdsbkp.config import Config
 
@@ -20,6 +23,16 @@ class RetryDownloader:
             file_path = os.path.join(self.failed_dir, f)
             with open(file_path, 'rb') as fp:
                 file = pickle.load(fp)
+                rds_instance = RDSInstance(
+                    AcsClient(
+                        self.config.get_accesskey_id(),
+                        self.config.get_accesskey_secret(),
+                        file.region_id
+                    ),
+                    file.region_id,
+                    file.instance_id,
+                )
+                file.set_rds_instance(rds_instance)
             if not file.backup(self.backup_dir):
                 # Remove pickle file if succeeded
                 os.remove(file_path)

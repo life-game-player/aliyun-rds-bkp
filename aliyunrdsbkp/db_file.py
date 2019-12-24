@@ -4,6 +4,9 @@ import pickle
 import urllib.request
 from urllib.parse import urlparse
 import shutil
+from datetime import timedelta
+
+from aliyunrdsbkp.config import Config
 
 
 class DBFile:
@@ -21,6 +24,7 @@ class DBFile:
         self.start_time = start_time
         self.end_time = end_time
         self.parse_file_name()
+        self.rds_instance = None
 
     def parse_file_name(self):
         self.file_name = urlparse(self.download_url).path.split('/')[-1]
@@ -44,22 +48,48 @@ class DBFile:
     def get_download_url(self):
         return self.download_url
 
-    def download(self, dest_file, retry=3):
-        for i in range(retry):
+    def set_rds_instance(self, instance):
+        self.rds_instance = instance
+
+    def download(self, dest_file, retry=5):
+        rest = retry
+        while rest > 0:
             try:
+                "Start downloading..."
                 with urllib.request.urlopen(self.download_url) as response, \
                         open(dest_file, 'wb') as f:
                     shutil.copyfileobj(response, f)
             except urllib.error.HTTPError as e:
-                print(e.code)
+                if e.code == 403:
+                    rest -= 1
+                    if self.reset_download_url() == 0:
+                        self.download(dest_file, rest)
             except Exception as e:
                 print(e)
-                if i < retry - 1:
-                    time.sleep(20)  # Retry after some seconds
+                rest -= 1
+                time.sleep(20)  # Retry after some seconds
             else:
                 return 0
-        else:
-            return 1
+        return 1
+
+    def reset_download_url(self):
+        if self.rds_instance is None:
+            return 1  # RDS instance was not found
+        backup_files = self.rds_instance.get_backup_files(
+            self.file_type,
+            self.start_time - timedelta(seconds=1),
+            self.start_time + timedelta(seconds=1)
+        )
+        if not backup_files:
+            print("No backup file was found")
+            return 2  # Get none backup file
+        for backup_file in backup_files:
+            if (
+                backup_file.start_time == self.start_time and
+                backup_file.end_time == self.end_time
+            ):
+                self.download_url = backup_file.get_download_url()
+                return 0
 
     def validate_file(self, dest_file):
         # Compare file size

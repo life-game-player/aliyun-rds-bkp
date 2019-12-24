@@ -34,6 +34,7 @@ class MySQLBackup:
                 backup_type)
             bkp_files = rds_instance.get_backup_files(
                 backup_type, start_time=last_bkp_time)
+            print("Backup files information has been collected.")
             for f in bkp_files:
                 curr_bkp_time = f.get_end_time()
                 if curr_bkp_time > last_bkp_time:
