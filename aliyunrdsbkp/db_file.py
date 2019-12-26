@@ -147,3 +147,20 @@ class DBFile:
         if not os.path.exists(failed_file_path):
             with open(failed_file_path, 'wb') as fp:
                 pickle.dump(self, fp, pickle.HIGHEST_PROTOCOL)
+
+    def __str__(self):
+        return (
+            "Region ID:{}, Instance ID:{}, File Type:{},\n"
+            "File Status:{}, Start Time:{}, End Time:{},\n"
+            "Download Link:{}, File Size:{}, Host ID:{}\n".format(
+                self.region_id,
+                self.instance_id,
+                self.file_type,
+                self.file_status,
+                self.start_time,
+                self.end_time,
+                self.download_url,
+                self.file_size,
+                self.host_id
+            )
+        )
