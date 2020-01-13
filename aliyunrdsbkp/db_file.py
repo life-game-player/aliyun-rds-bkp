@@ -7,6 +7,7 @@ import shutil
 from datetime import timedelta
 
 from aliyunrdsbkp.config import Config
+from aliyunrdsbkp.logger import logger
 
 
 class DBFile:
@@ -62,23 +63,26 @@ class DBFile:
             except urllib.error.HTTPError as e:
                 rest -= 1
                 if e.code == 403:
+                    logger.info("Download link is not valid any more.")
                     if self.reset_download_url() == 0:
                         self.download(dest_file, rest)
                 else:
-                    print(e)
+                    logger.error("A HTTP error occurred when downloading! Retry after 20 seconds...")
                     time.sleep(20)  # Retry after some seconds
             except Exception as e:
-                print(e)
+                logger.error("An error occurred when downloading! Retry after 20 seconds...")
                 rest -= 1
                 time.sleep(20)  # Retry after some seconds
             else:
+                logger.info("Downloaded successfully - {}".format(dest_file))
                 return 0
+        logger.info("Fail to download - {}".format(dest_file))
         return 1
 
     def reset_download_url(self):
-        print("Trying to refresh download url...")
+        logger.info("Trying to refresh download url...")
         if self.rds_instance is None:
-            print("RDS instance was not found")
+            logger.warning("RDS instance was not found")
             return 1  # RDS instance was not found
         start_time = self.start_time
         end_time = self.start_time
@@ -94,7 +98,7 @@ class DBFile:
             end_time
         )
         if not backup_files:
-            print("No backup file was found")
+            logger.warning("No backup file was found")
             return 2  # Get none backup file
         for backup_file in backup_files:
             if (
@@ -138,6 +142,7 @@ class DBFile:
             else:
                 # Downloaded file is invalid
                 os.remove(dest_file)
+                logger.warning("File is not valid! Deleted automatically! - {}".format(dest_file))
                 return 2
 
     def dump(self, failed_dir):

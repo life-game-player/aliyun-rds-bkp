@@ -8,19 +8,18 @@ from aliyunrdsbkp.config import Config
 from aliyunrdsbkp.scheduler import Scheduler
 from aliyunrdsbkp.postman import Postman
 from aliyunrdsbkp.cleaner import Cleaner
-from aliyunrdsbkp.logger import Logger
+from aliyunrdsbkp.logger import logger
 
 
 class MySQLBackup:
     def __init__(self, config_file):
         self.config = Config(config_file)
+        logger.set(self.config.get_err_log())
         self.postman = Postman(self.config.get_mail_config())
         self.scheduler = Scheduler()
         self.cleaner = Cleaner()
-        self.logger = Logger(self.config.get_err_log())
         self.succeeded_files = list()
         self.failed_files = list()
-        sys.excepthook = self.logger.log_exception
 
     def download_db_files(self, instance, rds_instance,
                           backup_dir, backup_type):
@@ -34,7 +33,7 @@ class MySQLBackup:
                 backup_type)
             bkp_files = rds_instance.get_backup_files(
                 backup_type, start_time=last_bkp_time)
-            print("Backup files information has been collected.")
+            logger.info("Backup files information has been collected.")
             for f in bkp_files:
                 curr_bkp_time = f.get_end_time()
                 if curr_bkp_time > last_bkp_time:

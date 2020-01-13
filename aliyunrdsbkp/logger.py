@@ -4,22 +4,27 @@ from datetime import datetime
 
 
 class Logger:
-    def __init__(self, log_path):
+    def __init__(self):
         self.logger = logging.getLogger()
-        self.log_path = log_path
 
-    def log_exception(self, expt_type, expt_value, tb):
-        self.logger.setLevel(logging.DEBUG)
+    def set(self, log_path):
         file_rotating_file = handlers.RotatingFileHandler(
-            self.log_path, maxBytes=1000000, backupCount=2,
-            encoding='utf-8')
-        file_rotating_file.setLevel(logging.DEBUG)
+            log_path, maxBytes=1000000, backupCount=2,
+            encoding='utf-8'
+        )
+        log_formatter = logging.Formatter("%(asctime)s [%(levelname)s] %(message)s", "%Y-%m-%d %H:%M:%S")
+        file_rotating_file.setFormatter(log_formatter)
         self.logger.addHandler(file_rotating_file)
-        self.logger.info(
-            'Timestamp: %s' % (datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
-        )
-        self.logger.error(
-            "Uncaught exception:",
-            exc_info=(expt_type, expt_value, tb)
-        )
-        self.logger.info("")
+        self.logger.setLevel(logging.INFO)
+
+    def error(self, msg):
+        self.logger.error(msg, exc_info=True)
+
+    def warning(self, msg):
+        self.logger.warning(msg)
+
+    def info(self, msg):
+        self.logger.info(msg)
+
+
+logger = Logger()

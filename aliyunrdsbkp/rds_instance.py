@@ -5,6 +5,7 @@ from aliyunsdkrds.request.v20140815 import DescribeBackupsRequest
 from aliyunsdkrds.request.v20140815 import DescribeBinlogFilesRequest
 
 from aliyunrdsbkp.db_file import DBFile
+from aliyunrdsbkp.logger import logger
 
 
 class RDSInstance:
@@ -15,10 +16,10 @@ class RDSInstance:
 
     def get_backup_files(self, backup_type, start_time, end_time=None):
         if backup_type == 'full':
-            print("get_fullbackup_files('{}', '{}')".format(start_time, end_time))
+            logger.info("get_fullbackup_files('{}', '{}')".format(start_time, end_time))
             return self.get_fullbackup_files(start_time, end_time)
         elif backup_type == 'binlog':
-            print("get_binlog_files('{}', '{}')".format(start_time, end_time))
+            logger.info("get_binlog_files('{}', '{}')".format(start_time, end_time))
             return self.get_binlog_files(start_time, end_time)
         else:
             return None
@@ -66,7 +67,7 @@ class RDSInstance:
                     file_size=file_size
                 )
                 if not dummy:
-                    print(file)
+                    logger.info(file)
                 files.append(file)
             read_record_cnt += response["PageRecordCount"]
             page_num += 1
@@ -136,11 +137,11 @@ class RDSInstance:
                         file_size=file_size,
                         checksum=checksum
                     )
-                    print(file)
+                    logger.info(file)
                     files.append(file)
             read_record_cnt += response["PageRecordCount"]
-            print("{} records has been read".format(response["PageRecordCount"]))
-            print("Total records:{}".format(response['TotalRecordCount']))
+            logger.info("{} records has been read".format(response["PageRecordCount"]))
+            logger.info("Total records:{}".format(response['TotalRecordCount']))
             page_num += 1
             if read_record_cnt >= response['TotalRecordCount']:
                 break
