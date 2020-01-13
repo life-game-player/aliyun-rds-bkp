@@ -56,7 +56,7 @@ class DBFile:
         rest = retry
         while rest > 0:
             try:
-                "Start downloading..."
+                logger.info("Start downloading - {}".format(self.download_url))
                 with urllib.request.urlopen(self.download_url) as response, \
                         open(dest_file, 'wb') as f:
                     shutil.copyfileobj(response, f)
