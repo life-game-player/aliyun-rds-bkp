@@ -30,10 +30,13 @@ class MySQLBackup:
                 )):
             last_bkp_time = self.config.get_last_backup_time(
                 instance,
-                backup_type)
+                backup_type
+            )
             bkp_files = rds_instance.get_backup_files(
-                backup_type, start_time=last_bkp_time)
+                backup_type, start_time=last_bkp_time
+            )
             logger.info("Backup files information has been collected.")
+            bkp_files.sort(key=lambda f: f.get_end_time())
             for f in bkp_files:
                 curr_bkp_time = f.get_end_time()
                 if curr_bkp_time > last_bkp_time:
@@ -44,7 +47,8 @@ class MySQLBackup:
                     self.failed_files.append(f)
                 self.config.set_last_bkp_time(
                     instance, backup_type,
-                    last_bkp_time)
+                    last_bkp_time
+                )
                 # Update last backup time in config file
                 self.config.update_config_file()
 

@@ -1,10 +1,11 @@
 import os
 import time
 import pickle
-import urllib.request
+import requests
 from urllib.parse import urlparse
 import shutil
 from datetime import timedelta
+from datetime import datetime
 
 from aliyunrdsbkp.config import Config
 from aliyunrdsbkp.logger import logger
@@ -52,30 +53,41 @@ class DBFile:
     def set_rds_instance(self, instance):
         self.rds_instance = instance
 
-    def download(self, dest_file, retry=5):
+    def download(self, dest_file, retry=5, download_timeout=7200):
         rest = retry
         while rest > 0:
             try:
                 logger.info("Start downloading - {}".format(self.download_url))
-                with urllib.request.urlopen(self.download_url) as response, \
-                        open(dest_file, 'wb') as f:
-                    shutil.copyfileobj(response, f)
-            except urllib.error.HTTPError as e:
-                rest -= 1
-                if e.code == 403:
+                error_count = 0
+                response = requests.get(self.download_url, timeout=30, stream=True)
+                content_type = response.headers.get('content-type')
+                if content_type == "application/xml":  # Download link is expired
+                    rest -= 1
                     logger.info("Download link is not valid any more.")
-                    if self.reset_download_url() == 0:
-                        self.download(dest_file, rest)
+                    if self.reset_download_url() > 0:
+                        error_count += 1
+                        logger.error("Failed to reset download url! Retry after 5 seconds...")
                 else:
-                    logger.error("A HTTP error occurred when downloading! Retry after 20 seconds...")
-                    time.sleep(20)  # Retry after some seconds
+                    with open(dest_file, 'wb') as f:
+                        download_start = datetime.now()
+                        # Download 10MiB per chunk
+                        for chunk in response.iter_content(1024 * 1024 * 10):
+                            f.write(chunk)
+                            elapsed = datetime.now() - download_start
+                            if elapsed.seconds > download_timeout:
+                                logger.error("Download timeout! Retry after 5 seconds...")
+                                time.sleep(5)
+                                error_count += 1
+                                rest -= 1
+                                break
             except Exception as e:
                 logger.error("An error occurred when downloading! Retry after 20 seconds...")
                 rest -= 1
                 time.sleep(20)  # Retry after some seconds
             else:
-                logger.info("Downloaded successfully - {}".format(dest_file))
-                return 0
+                if error_count == 0:
+                    logger.info("Downloaded successfully - {}".format(dest_file))
+                    return 0
         logger.info("Fail to download - {}".format(dest_file))
         return 1
 
