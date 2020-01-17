@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="aliyun-rds-bkp",
-    version="0.1.14",
+    version="0.1.15",
     author="Bill Guo",
     author_email="billguo.feather@outlook.com",
     description="A small tool to download db files \
@@ -15,7 +15,8 @@ setuptools.setup(
     url="https://github.com/life-game-player/aliyun-rds-bkp",
     packages=setuptools.find_packages(exclude=["tests*"]),
     install_requires=[
-        'aliyun-python-sdk-rds>=2.3.2'
+        'aliyun-python-sdk-rds>=2.3.2',
+        'requests>=2.21.0'
     ],
     classifiers=[
         "Development Status :: 3 - Alpha",
