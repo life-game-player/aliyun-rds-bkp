@@ -49,18 +49,20 @@ class Postman:
         html_text += '</tr>'
         return html_text
 
-    def send_backup_report(self, succeeded, failed):
+    def send_backup_report(self, succeeded, failed, free_in_gb):
         succeeded_cnt = len(succeeded)
         failed_cnt = len(failed)
         plain_text = "Sorry, HTML format only!"
-        self.subject = "{} - {} succeeded, {} failed".format(
-            self.subject, succeeded_cnt, failed_cnt)
+        self.subject = "{} - {} succeeded, {} failed, {} GB space left".format(
+            self.subject, succeeded_cnt, failed_cnt, free_in_gb
+        )
         html_text = '<div style="margin-bottom:5px;color:{};font-size:12.0pt;\
         font-family:Calibri,Microsoft YaHei,黑体,宋体,sans-serif;">\
-        {} succeeded, {} failed</div>'.format(
-            "red" if failed_cnt > 0 else "green",
+        {} succeeded, {} failed, {} GB space left</div>'.format(
+            "red" if failed_cnt > 0 or free_in_gb < 30 else "green",
             succeeded_cnt,
-            failed_cnt
+            failed_cnt,
+            free_in_gb
         )
         html_text += '<table cellpadding="10" cellspacing="0" \
         style="font-size:11.0pt; \

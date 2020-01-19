@@ -1,5 +1,6 @@
 import os
 import sys
+import shutil
 
 from aliyunsdkcore.client import AcsClient
 
@@ -91,7 +92,14 @@ class MySQLBackup:
         for ff in self.failed_files:
             ff.dump(failed_dir)
 
+        # Calculate left disk space
+        total, used, free = shutil.disk_usage(
+            self.config.get_backup_dir()
+        )
+
         # Send backup report email
         self.postman.send_backup_report(
             self.succeeded_files,
-            self.failed_files)
+            self.failed_files,
+            free // 2**30
+        )
