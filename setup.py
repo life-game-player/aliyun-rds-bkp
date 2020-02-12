@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="aliyun-rds-bkp",
-    version="0.1.16",
+    version="0.1.17",
     author="Bill Guo",
     author_email="billguo.feather@outlook.com",
     description="A small tool to download db files \

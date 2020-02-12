@@ -154,7 +154,7 @@ class DBFile:
             else:
                 # Downloaded file is invalid
                 os.remove(dest_file)
-                logger.warning("File is not valid! Deleted automatically! - {}".format(dest_file))
+                logger.error("File is not valid! Deleted automatically! - {}".format(dest_file))
                 return 2
 
     def dump(self, failed_dir):
